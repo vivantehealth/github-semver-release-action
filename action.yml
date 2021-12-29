@@ -1,0 +1,19 @@
+name: 'The named action'
+description: "Does a useful thing"
+inputs:
+  github_token:
+    description: GitHub token to use
+    required: true
+outputs:
+  a_value:
+    description: A value that may be useful to another step
+    value: steps.date.outputs.date    
+runs:
+  using: "composite"
+  steps:
+    - name: Get current time
+      id: date
+      shell: bash
+      run: |
+        time=$(date)
+        echo "::set-output name=time::$(echo $time)"
