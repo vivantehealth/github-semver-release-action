@@ -6,6 +6,7 @@ on:
       - "main"
 
 jobs:
+  # haven't found a way to reuse the locally defined action.yml at the root of the repo
   release:
     name: Release
     runs-on: ubuntu-latest
