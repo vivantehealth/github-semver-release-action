@@ -5,4 +5,3 @@
 # CODEOWNER updates require devops review (.github/CODEOWNERS takes precedence over CODEOWNERS at root)
 .github/CODEOWNERS @vivantehealth/devops
 *.tf @vivantehealth/devops# Helm updates require devops review
-/helm/ @vivantehealth/devops
