@@ -1,4 +1,5 @@
-* @vivantehealth/eng
+# Devops should review any file by default
+* @vivantehealth/devops
 # GitHub Actions workflow updates require devops review
 .github/workflows @vivantehealth/devops
 # CODEOWNER updates require devops review (.github/CODEOWNERS takes precedence over CODEOWNERS at root)
