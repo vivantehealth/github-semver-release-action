@@ -1,3 +1,4 @@
 * @vivantehealth/eng
-*.tf @vivantehealth/devops# Helm updates require devops review
+*.tf @vivantehealth/devops
+# Helm updates require devops review
 /helm/ @vivantehealth/devops
