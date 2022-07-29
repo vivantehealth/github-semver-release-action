@@ -25,6 +25,7 @@ runs:
       with:
         body: ${{ github.event.head_commit.message }}
         tag: ${{ steps.tag.outputs.new_tag }}
+        generateReleaseNotes: true
     - name: Parse higher semantic versions
       id: semver
       shell: bash
