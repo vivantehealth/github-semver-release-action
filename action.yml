@@ -5,18 +5,18 @@ inputs:
     description: 'Default semver segment to bump'
     default: 'minor'
     required: false
-    type: string
 runs:
   using: "composite"
   steps:
     - name: GitHub Tag Bump
-      uses: anothrNick/github-tag-action@1.36.0
+      uses: anothrNick/github-tag-action@v1
       id: tag
       env:
         GITHUB_TOKEN: ${{ github.token }}
         DEFAULT_BUMP: ${{ inputs.default-bump }}
-        WITH_V: true
-        DRY_RUN: true
+        RELEASE_BRANCHES: "main"
+        WITH_V: "true"
+        DRY_RUN: "true"
     - name: List Release
       run: echo "This will create the release '${{ steps.tag.outputs.new_tag }}'"
       shell: bash
@@ -25,6 +25,7 @@ runs:
       with:
         body: ${{ github.event.head_commit.message }}
         tag: ${{ steps.tag.outputs.new_tag }}
+        generateReleaseNotes: true
     - name: Parse higher semantic versions
       id: semver
       shell: bash
@@ -34,13 +35,15 @@ runs:
         MAJOR="${MINOR%.*}"
         echo "major=$(echo $MAJOR)" >> $GITHUB_OUTPUT
         echo "minor=$(echo $MINOR)" >> $GITHUB_OUTPUT
-    # from https://github.com/google-github-actions/setup-gcloud/blob/6a46c264e16f6bfca990b7e920290d4a8f8dba4e/.github/workflows/release.yml
+    # from https://github.com/google-github-actions/.github/blob/main/.github/workflows/release.yml
+    # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
     - name: 'Update floating tag'
-      uses: 'actions/github-script@v5'
+      uses: 'actions/github-script@v6'
       with:
         script: |-
-          const sha = '${{ github.sha }}'
-          const major = '${{ steps.semver.outputs.major }}';
+          const sha = `${{ github.sha }}`;
+          const major = `${{ steps.semver.outputs.major }}`;
+
           // Try to update the ref first. If that fails, it probably does not
           // exist yet, and we should create it.
           try {
@@ -53,7 +56,7 @@ runs:
             });
             core.info(`Updated ${major} to ${sha}`);
           } catch(err) {
-            core.warning(`Failed to create ${major}: ${err}`);
+            core.warning(`Failed to create tag ${major}: ${err}`);
             await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
