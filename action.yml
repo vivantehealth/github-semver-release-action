@@ -15,6 +15,7 @@ runs:
         GITHUB_TOKEN: ${{ github.token }}
         DEFAULT_BUMP: ${{ inputs.default-bump }}
         RELEASE_BRANCHES: "main"
+        DEFAULT_BRANCH: "main"
         WITH_V: "true"
         DRY_RUN: "true"
     - name: List Release
