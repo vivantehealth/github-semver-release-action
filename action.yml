@@ -33,7 +33,7 @@ runs:
     # from https://github.com/google-github-actions/.github/blob/main/.github/workflows/release.yml
     # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
     - name: 'Update floating tag'
-      uses: 'actions/github-script@v6'
+      uses: 'actions/github-script@v7'
       with:
         script: |-
           const sha = `${{ github.sha }}`;
