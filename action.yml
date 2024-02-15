@@ -19,10 +19,12 @@ runs:
         WITH_V: "true"
         DRY_RUN: "true"
     - name: List Release
+      if: steps.tag.outputs.part != 'none'
       run: echo "This will create the release '${{ steps.tag.outputs.new_tag }}'"
       shell: bash
     - name: Parse higher semantic versions
       id: semver
+      if: steps.tag.outputs.part != 'none'
       shell: bash
       run: |
         TAG="${{ steps.tag.outputs.new_tag }}"
@@ -34,6 +36,7 @@ runs:
     # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
     - name: 'Update floating tag'
       uses: 'actions/github-script@v6'
+      if: steps.tag.outputs.part != 'none'
       with:
         script: |-
           const sha = `${{ github.sha }}`;
@@ -62,6 +65,7 @@ runs:
           }
     - name: Create Release
       uses: ncipollo/release-action@v1
+      if: steps.tag.outputs.part != 'none'
       with:
         body: ${{ github.event.head_commit.message }}
         tag: ${{ steps.tag.outputs.new_tag }}
