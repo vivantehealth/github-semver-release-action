@@ -75,7 +75,7 @@ runs:
         script: |-
           const sha = `${{ github.sha }}`;
 
-          if (inputs.create-floating-major-tag == 'true') {
+          if (core.getInput('create-floating-major-tag == "true"')) {
             const major = `${{ steps.semver.outputs.major }}`;
 
             // Try to update the ref first. If that fails, it probably does not
@@ -105,7 +105,7 @@ runs:
             }
           }
 
-          if (inputs.create-floating-minor-tag == 'true') {
+          if (core.getInput('create-floating-minor-tag == "true"')) {
             // Do the same for the minor version
             const minor = `${{ steps.semver.outputs.minor }}`;
             try {
