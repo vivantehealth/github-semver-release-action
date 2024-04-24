@@ -70,6 +70,10 @@ runs:
     # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
     - name: 'Update floating tags'
       uses: 'actions/github-script@v7'
+      env:
+        # These need to be passed in explicitly. see https://github.com/actions/runner/issues/665
+        INPUT_CREATE-FLOATING-MAJOR-TAG: ${{ inputs.create-floating-major-tag }}
+        INPUT_CREATE-FLOATING-MINOR-TAG: ${{ inputs.create-floating-minor-tag }}
       if: steps.tag.outputs.part != 'none' && (inputs.create-floating-major-tag == 'true' || inputs.create-floating-minor-tag == 'true')
       with:
         script: |-
