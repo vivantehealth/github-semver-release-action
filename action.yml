@@ -68,6 +68,30 @@ runs:
         echo "minor=$(echo $MINOR)" >> $GITHUB_OUTPUT
     # from https://github.com/google-github-actions/.github/blob/main/.github/workflows/release.yml
     # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
+    - name: 'Debug 1'
+      uses: 'actions/github-script@v7'
+      with:
+        script: |-
+          const sha = `${{ github.sha }}`;
+          console.log("debug 1")
+          console.log(core.getInput('create-floating-major-tag')
+    - name: 'Debug 2'
+      uses: 'actions/github-script@v7'
+      if: steps.tag.outputs.part != 'none' && (${{ inputs.create-floating-major-tag }} == 'true' || ${{ inputs.create-floating-minor-tag }} == 'true')
+      with:
+        script: |-
+          console.log("debug 2")
+          console.log(core.getInput('create-floating-major-tag')
+    - name: 'Debug 3'
+      uses: 'actions/github-script@v7'
+      env:
+        # These need to be passed in explicitly. see https://github.com/actions/runner/issues/665
+        INPUT_CREATE-FLOATING-MAJOR-TAG: ${{ inputs.create-floating-major-tag }}
+        INPUT_CREATE-FLOATING-MINOR-TAG: ${{ inputs.create-floating-minor-tag }}
+      with:
+        script: |-
+          console.log("debug 3")
+          console.log(core.getInput('create-floating-major-tag')
     - name: 'Update floating tags'
       uses: 'actions/github-script@v7'
       env:
@@ -79,7 +103,7 @@ runs:
         script: |-
           const sha = `${{ github.sha }}`;
 
-          if (core.getInput('create-floating-major-tag == "true"')) {
+          if (core.getInput('create-floating-major-tag') == "true") {
             const major = `${{ steps.semver.outputs.major }}`;
 
             // Try to update the ref first. If that fails, it probably does not
@@ -109,7 +133,7 @@ runs:
             }
           }
 
-          if (core.getInput('create-floating-minor-tag == "true"')) {
+          if (core.getInput('create-floating-minor-tag') == "true") {
             // Do the same for the minor version
             const minor = `${{ steps.semver.outputs.minor }}`;
             try {
