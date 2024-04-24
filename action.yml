@@ -5,6 +5,40 @@ inputs:
     description: 'Default semver segment to bump'
     default: 'minor'
     required: false
+  v-prefix:
+    required: false
+    description: 'Whether to prefix the version with a "v"'
+    default: 'true'
+  create-floating-major-tag:
+    required: false
+    description: 'Whether to create/update a floating major tag'
+    default: 'true'
+  create-floating-minor-tag:
+    required: false
+    description: 'Whether to create/update a floating minor tag'
+    default: 'true'
+# Output the major version
+outputs:
+  major:
+    description: 'Major version'
+    value: ${{ steps.semver.outputs.major }}
+  minor:
+    description: 'Minor version in *.* format'
+    value: ${{ steps.semver.outputs.minor }}
+  # Provide 3 ways to access the new *.*.* version
+  patch:
+    description: 'The new version'
+    value: ${{ steps.tag.outputs.new_tag }}
+  version:
+    description: 'The new version'
+    value: ${{ steps.tag.outputs.new_tag }}
+  tag:
+    description: 'The new version'
+    value: ${{ steps.tag.outputs.new_tag }}
+  part:
+    description: 'Part of the version that was bumped'
+    value: ${{ steps.tag.outputs.part }}
+
 runs:
   using: "composite"
   steps:
@@ -16,7 +50,7 @@ runs:
         DEFAULT_BUMP: ${{ inputs.default-bump }}
         RELEASE_BRANCHES: "main"
         DEFAULT_BRANCH: "main"
-        WITH_V: "true"
+        WITH_V: ${{ inputs.v-prefix }}
         DRY_RUN: "true"
     - name: List Release
       if: steps.tag.outputs.part != 'none'
@@ -34,34 +68,69 @@ runs:
         echo "minor=$(echo $MINOR)" >> $GITHUB_OUTPUT
     # from https://github.com/google-github-actions/.github/blob/main/.github/workflows/release.yml
     # current version: https://github.com/google-github-actions/.github/blob/a569c9b05443b682e293700932a0db23ae21c344/.github/workflows/release.yml#L80
-    - name: 'Update floating tag'
-      uses: 'actions/github-script@v6'
-      if: steps.tag.outputs.part != 'none'
+    - name: 'Update floating tags'
+      uses: 'actions/github-script@v7'
+      if: steps.tag.outputs.part != 'none' && (inputs.create-floating-major-tag == 'true' || inputs.create-floating-minor-tag == 'true')
       with:
         script: |-
           const sha = `${{ github.sha }}`;
-          const major = `${{ steps.semver.outputs.major }}`;
 
-          // Try to update the ref first. If that fails, it probably does not
-          // exist yet, and we should create it.
-          try {
-            await github.rest.git.updateRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `tags/${major}`,
-              sha: sha,
-              force: true,
-            });
-            core.info(`Updated ${major} to ${sha}`);
-          } catch(err) {
-            core.warning(`Failed to create tag ${major}: ${err}`);
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${major}`,
-              sha: sha,
-            });
-            core.info(`Created ${major} at ${sha}`);
+          if (inputs.create-floating-major-tag == 'true') {
+            const major = `${{ steps.semver.outputs.major }}`;
+
+            // Try to update the ref first. If that fails, it probably does not
+            // exist yet, and we should create it.
+            try {
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${major}`,
+                sha: sha,
+                force: true,
+              });
+              core.info(`Updated ${major} to ${sha}`);
+            } catch(err) {
+              core.warning(`Failed to create tag ${major}: ${err}`);
+              try {
+                await github.rest.git.createRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `refs/tags/${major}`,
+                  sha: sha,
+                });
+                core.info(`Created ${major} pointing to ${sha}`);
+              } catch(err) {
+                core.error(`Failed to create tag ${major}: ${err}`);
+              }
+            }
+          }
+
+          if (inputs.create-floating-minor-tag == 'true') {
+            // Do the same for the minor version
+            const minor = `${{ steps.semver.outputs.minor }}`;
+            try {
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${minor}`,
+                sha: sha,
+                force: true,
+              });
+              core.info(`Updated ${minor} to ${sha}`);
+            } catch(err) {
+              core.warning(`Failed to create tag ${minor}: ${err}`);
+              try {
+                await github.rest.git.createRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `refs/tags/${minor}`,
+                  sha: sha,
+                });
+                core.info(`Created ${minor} pointing to ${sha}`);
+              } catch(err) {
+                core.error(`Failed to create tag ${minor}: ${err}`);
+              }
+            }
           }
     - name: Create Release
       uses: ncipollo/release-action@v1
