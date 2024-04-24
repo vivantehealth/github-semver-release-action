@@ -17,6 +17,10 @@ inputs:
     required: false
     description: 'Whether to create/update a floating minor tag'
     default: 'true'
+  floating-tag-sha:
+    required: false
+    description: 'Which git sha to use for the floating tags. Useful for CD workflows where the main branch is pushed just prior to tagging'
+    default: ''
 # Output the major version
 outputs:
   major:
@@ -74,10 +78,12 @@ runs:
         # These need to be passed in explicitly. see https://github.com/actions/runner/issues/665
         INPUT_CREATE-FLOATING-MAJOR-TAG: ${{ inputs.create-floating-major-tag }}
         INPUT_CREATE-FLOATING-MINOR-TAG: ${{ inputs.create-floating-minor-tag }}
+        INPUT_FLOATING-TAG-SHA: ${{ inputs.floating-tag-sha }}
       if: steps.tag.outputs.part != 'none' && (${{ inputs.create-floating-major-tag }} == 'true' || ${{ inputs.create-floating-minor-tag }} == 'true')
       with:
         script: |-
-          const sha = `${{ github.sha }}`;
+          // Use the sha override if set, else use the sha that triggered this workflow
+          const sha = core.getInput('floating-tag-sha') == '' ? `${{ github.sha }}`: core.getInput('floating-tag-sha');
 
           if (core.getInput('create-floating-major-tag') == "true") {
             const major = `${{ steps.semver.outputs.major }}`;
