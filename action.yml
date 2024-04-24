@@ -72,9 +72,9 @@ runs:
       uses: 'actions/github-script@v7'
       env:
         # These need to be passed in explicitly. see https://github.com/actions/runner/issues/665
-        INPUT_CREATE-FLOATING-MAJOR-TAG: ${{ inputs.create-floating-major-tag }}
-        INPUT_CREATE-FLOATING-MINOR-TAG: ${{ inputs.create-floating-minor-tag }}
-      if: steps.tag.outputs.part != 'none' && (inputs.create-floating-major-tag == 'true' || inputs.create-floating-minor-tag == 'true')
+        INPUT_CREATE-FLOATING-MAJOR-TAG: ${{ inputs.create_floating_major_tag }}
+        INPUT_CREATE-FLOATING-MINOR-TAG: ${{ inputs.create_floating_minor_tag }}
+      if: steps.tag.outputs.part != 'none' && (${{ inputs.create-floating-major-tag }} == 'true' || ${{ inputs.create-floating-minor-tag }} == 'true')
       with:
         script: |-
           const sha = `${{ github.sha }}`;
