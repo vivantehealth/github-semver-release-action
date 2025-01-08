@@ -21,6 +21,14 @@ inputs:
     required: false
     description: 'Which git sha to use for the floating tags. Useful for CD workflows where the main branch is pushed just prior to tagging'
     default: ''
+  artifacts:
+    description: 'Path of artifacts to upload. comma separated list and supports glob patterns'
+    required: false
+    default: ''
+  artifactsContentType:
+    description: 'The content type of the artifact. Defaults to raw'
+    required: false
+    default: 'raw'
 # Output the major version
 outputs:
   major:
@@ -146,6 +154,8 @@ runs:
       uses: ncipollo/release-action@v1
       if: steps.tag.outputs.part != 'none'
       with:
+        artifacts: ${{ inputs.artifacts }}
+        artifactsContentType: ${{ inputs.artifactContentType }}
         body: ${{ github.event.head_commit.message }}
         tag: ${{ steps.tag.outputs.new_tag }}
         generateReleaseNotes: true
