@@ -28,7 +28,7 @@ inputs:
   artifactContentType:
     description: 'The content type of the artifact. Defaults to raw'
     required: false
-    default: 'raw'
+    default: ''
 # Output the major version
 outputs:
   major:
