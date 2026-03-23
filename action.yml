@@ -55,6 +55,7 @@ runs:
         INPUT_DEFAULT_BUMP: ${{ inputs.default-bump }}
         INPUT_V_PREFIX: ${{ inputs.v-prefix }}
         ACTION_PATH: ${{ github.action_path }}
+        GOTOOLCHAIN: local
       run: |
         PREFIX=""
         if [[ "$INPUT_V_PREFIX" == "true" ]]; then
