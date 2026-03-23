@@ -66,6 +66,14 @@ runs:
         LATEST_TAG="$LATEST_TAG" COMMIT_MSG="$COMMIT_MSG" \
           go run -C "$ACTION_PATH" . "$INPUT_DEFAULT_BUMP" "$INPUT_V_PREFIX"
 
+        # Skip if this tag was already created (e.g. workflow re-run)
+        NEW_TAG=$(grep '^new_tag=' "$GITHUB_OUTPUT" | tail -1 | cut -d= -f2)
+        if [[ -n "$NEW_TAG" ]] && git ls-remote --tags origin "refs/tags/$NEW_TAG" | grep -q .; then
+          echo "Tag $NEW_TAG already exists, skipping release"
+          sed -i '/^part=/d' "$GITHUB_OUTPUT"
+          echo "part=none" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Create release
       if: steps.semver.outputs.part != 'none'
       shell: bash
