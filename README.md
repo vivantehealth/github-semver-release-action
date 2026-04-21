@@ -43,11 +43,13 @@ jobs:
 
 ## Commit message keywords
 
-Include one of these anywhere in the latest commit message (subject or body) to control the version bump. If no keyword is found, the `default-bump` input is used.
+Only the HEAD commit's message is inspected (subject and body). Commits reachable from HEAD but not at HEAD are ignored. For squash-merged PRs the squash commit is checked, which typically embeds the PR title and description — so placing a keyword in either works. For regular (non-squash) merge commits, the keyword must be in the merge commit message itself, not in the branch's individual commits.
+
+Include one of these anywhere in that commit message to control the version bump. If no keyword is found, the `default-bump` input is used.
 
 - `#major` — bump major version (e.g., `v1.2.3` -> `v2.0.0`)
 - `#minor` — bump minor version (e.g., `v1.2.3` -> `v1.3.0`)
 - `#patch` — bump patch version (e.g., `v1.2.3` -> `v1.2.4`)
 - `#none` — skip release
 
-If multiple keywords are present, the highest-priority bump wins (major > minor > patch > none).
+If multiple keywords appear in the same commit message, the highest-priority bump wins: `#major` > `#minor` > `#patch` > `#none`. For example, a message containing both `#patch` and `#major` produces a major bump.

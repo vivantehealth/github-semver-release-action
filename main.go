@@ -77,13 +77,13 @@ func CalculateVersion(latestTag, commitMsg, defaultBump string, vPrefix bool) Re
 }
 
 func parseVersion(tag string) semver.Version {
-	tag = strings.TrimPrefix(tag, "v")
 	if tag == "" {
 		return *semver.MustParse("0.0.0")
 	}
 	v, err := semver.NewVersion(tag)
 	if err != nil {
-		return *semver.MustParse("0.0.0")
+		fmt.Fprintf(os.Stderr, "Failed to parse latest tag %q: %v\n", tag, err)
+		os.Exit(1)
 	}
 	return *v
 }
