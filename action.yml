@@ -69,6 +69,7 @@ runs:
         fi
 
         LATEST_TAG=$(git tag --list "${PREFIX}[0-9]*.[0-9]*.[0-9]*" --sort=-v:refname | head -n 1)
+        echo "previous_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
         COMMIT_MSG=$(git log -1 --format=%B)
         LATEST_TAG="$LATEST_TAG" COMMIT_MSG="$COMMIT_MSG" \
           go run -C "$ACTION_PATH" . "$INPUT_DEFAULT_BUMP" "$INPUT_V_PREFIX"
@@ -81,9 +82,14 @@ runs:
         INPUT_TAG: ${{ steps.semver.outputs.new_tag }}
         INPUT_TARGET: ${{ github.sha }}
         INPUT_ARTIFACTS: ${{ inputs.artifacts }}
+        INPUT_PREV_TAG: ${{ steps.semver.outputs.previous_tag }}
       run: |
         shopt -s nullglob
         ARGS=(--generate-notes --target "$INPUT_TARGET")
+
+        if [[ -n "$INPUT_PREV_TAG" ]]; then
+          ARGS+=(--notes-start-tag "$INPUT_PREV_TAG")
+        fi
 
         if [[ -n "$INPUT_ARTIFACTS" ]]; then
           IFS=',' read -ra FILES <<< "$INPUT_ARTIFACTS"
